@@ -29,6 +29,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		capabilitytypes.StoreKey,
 		consensusparamtypes.StoreKey,
 		upgradetypes.StoreKey,
+		//TODO: Add store key
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)

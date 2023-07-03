@@ -56,6 +56,8 @@ type AppKeepers struct {
 
 	TransferModule transfer.AppModule
 
+	//TODO: Add keeper
+
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 }
@@ -69,6 +71,7 @@ func NewAppKeeper(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 	Bech32Prefix string,
+	defaultDenom string,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
 
@@ -189,6 +192,8 @@ func NewAppKeeper(
 		AddRoute(ibctransfertypes.ModuleName, transferStack)
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
+	//TODO: Add Keeper constructor
+
 	return appKeepers
 }
 
@@ -209,6 +214,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibcexported.ModuleName)
+	// TODO: Add module params
 
 	return paramsKeeper
 }

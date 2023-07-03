@@ -5,6 +5,8 @@ import (
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -47,6 +49,15 @@ type NeutrinoApp struct {
 
 	mm           *module.Manager
 	configurator module.Configurator
+}
+
+func init() {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
+	DefaultNodeHome = filepath.Join(userHomeDir, ".neutrinod")
 }
 
 func NewApp(
@@ -95,6 +106,7 @@ func NewApp(
 		skipUpgradeHeights,
 		homePath,
 		Bech32Prefix,
+		DefaultDenom,
 	)
 
 	app.mm = module.NewManager(appModules(app, encodingConfig)...)

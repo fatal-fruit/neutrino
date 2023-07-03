@@ -55,6 +55,7 @@ var (
 		ibctm.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		transfer.AppModuleBasic{},
+		// TODO: Add module AppModuleBasic
 	)
 
 	maccPerms = map[string][]string{
@@ -90,6 +91,7 @@ func appModules(
 		ibc.NewAppModule(app.IBCKeeper),
 		sdkparams.NewAppModule(app.ParamsKeeper),
 		app.TransferModule,
+		// TODO: Add new app module constructor
 	}
 }
 
@@ -107,6 +109,7 @@ func orderBeginBlockers() []string {
 		genutiltypes.ModuleName,
 		paramstypes.ModuleName,
 		consensusparamtypes.ModuleName,
+		// TODO: Add module name
 	}
 }
 
@@ -124,6 +127,7 @@ func orderEndBlockers() []string {
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		consensusparamtypes.ModuleName,
+		// TODO: Add module name
 	}
 }
 
@@ -141,5 +145,6 @@ func orderInitBlockers() []string {
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		consensusparamtypes.ModuleName,
+		// TODO: Add module name
 	}
 }
