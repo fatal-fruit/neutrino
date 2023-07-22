@@ -56,7 +56,7 @@ type AppKeepers struct {
 
 	TransferModule transfer.AppModule
 
-	//TODO: Add keeper
+	// TODO: Add keeper
 
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
@@ -192,7 +192,7 @@ func NewAppKeeper(
 		AddRoute(ibctransfertypes.ModuleName, transferStack)
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
-	//TODO: Add Keeper constructor
+	// TODO: Add Keeper constructor
 
 	return appKeepers
 }

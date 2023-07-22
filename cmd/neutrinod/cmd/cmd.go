@@ -118,7 +118,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig) {
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
-		// NewTestnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		config.Cmd(),
 		pruning.PruningCmd(ac.newApp),
 	)
