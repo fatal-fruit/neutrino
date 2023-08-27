@@ -1,23 +1,22 @@
 package keepers
 
 import (
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	storetypes "cosmossdk.io/store/types"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
-	appKeepers.keys = sdk.NewKVStoreKeys(
+	appKeepers.keys = storetypes.NewKVStoreKeys(
 		authtypes.StoreKey,
 		banktypes.StoreKey,
 		stakingtypes.StoreKey,
@@ -32,11 +31,11 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		// TODO: Add store key
 	)
 
-	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
-	appKeepers.memKeys = sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+	appKeepers.tkeys = storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
+	appKeepers.memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 }
 
-func (appKeepers *AppKeepers) GetKVStoreKey() map[string]*storetypes.KVStoreKey {
+func (appKeepers *AppKeepers) GetKVStoreKeys() map[string]*storetypes.KVStoreKey {
 	return appKeepers.keys
 }
 

@@ -1,21 +1,25 @@
 package keepers
 
 import (
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
+	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
+	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
+	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
@@ -23,9 +27,8 @@ import (
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -34,6 +37,16 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+)
+
+const (
+	Bech32Prefix         = "neutrino"
+	Bech32PrefixAccAddr  = Bech32Prefix
+	Bech32PrefixAccPub   = Bech32Prefix + "pub"
+	Bech32PrefixValAddr  = Bech32Prefix + "valoper"
+	Bech32PrefixValPub   = Bech32Prefix + "valoperpub"
+	Bech32PrefixConsAddr = Bech32Prefix + "valcons"
+	Bech32PrefixConsPub  = Bech32Prefix + "valconspub"
 )
 
 type AppKeepers struct {
@@ -72,6 +85,7 @@ func NewAppKeeper(
 	homePath string,
 	Bech32Prefix string,
 	defaultDenom string,
+	logger log.Logger,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
 
@@ -84,8 +98,8 @@ func NewAppKeeper(
 		appKeepers.tkeys[paramstypes.TStoreKey],
 	)
 
-	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, appKeepers.keys[upgradetypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
-	bApp.SetParamStore(&appKeepers.ConsensusParamsKeeper)
+	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, runtime.NewKVStoreService(appKeepers.keys[consensusparamtypes.StoreKey]), authtypes.NewModuleAddress(govtypes.ModuleName).String(), runtime.EventService{})
+	bApp.SetParamStore(&appKeepers.ConsensusParamsKeeper.ParamsStore)
 
 	appKeepers.CapabilityKeeper = capabilitykeeper.NewKeeper(
 		appCodec,
@@ -97,34 +111,36 @@ func NewAppKeeper(
 	scopedTransferKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	appKeepers.CapabilityKeeper.Seal()
 
-	appKeepers.AccountKeeper = authkeeper.NewAccountKeeper(
-		appCodec,
-		appKeepers.keys[authtypes.StoreKey],
-		authtypes.ProtoBaseAccount,
-		maccPerms,
+	appKeepers.AccountKeeper = authkeeper.NewAccountKeeper(appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[authtypes.StoreKey]),
+		authtypes.ProtoBaseAccount, maccPerms,
+		authcodec.NewBech32Codec(Bech32Prefix),
 		Bech32Prefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
 	appKeepers.BankKeeper = bankkeeper.NewBaseKeeper(
 		appCodec,
-		appKeepers.keys[banktypes.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[banktypes.StoreKey]),
 		appKeepers.AccountKeeper,
 		blockedAddress,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		logger,
 	)
 
 	appKeepers.StakingKeeper = stakingkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[stakingtypes.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[stakingtypes.StoreKey]),
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authcodec.NewBech32Codec(Bech32PrefixValAddr),
+		authcodec.NewBech32Codec(Bech32PrefixConsAddr),
 	)
 
 	appKeepers.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[distrtypes.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[distrtypes.StoreKey]),
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.StakingKeeper,
@@ -138,7 +154,7 @@ func NewAppKeeper(
 
 	appKeepers.UpgradeKeeper = upgradekeeper.NewKeeper(
 		skipUpgradeHeights,
-		appKeepers.keys[upgradetypes.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[upgradetypes.StoreKey]),
 		appCodec,
 		homePath,
 		bApp,
@@ -152,21 +168,22 @@ func NewAppKeeper(
 		appKeepers.StakingKeeper,
 		appKeepers.UpgradeKeeper,
 		scopedIBCKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
 	govRouter := govv1beta1.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(appKeepers.ParamsKeeper)).
-		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(appKeepers.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(appKeepers.IBCKeeper.ClientKeeper))
 
 	govConfig := govtypes.DefaultConfig()
 	appKeepers.GovKeeper = *govkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[govtypes.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[govtypes.StoreKey]),
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.StakingKeeper,
+		appKeepers.DistrKeeper,
 		bApp.MsgServiceRouter(),
 		govConfig,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -181,8 +198,8 @@ func NewAppKeeper(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.AccountKeeper,
-		appKeepers.BankKeeper,
-		scopedTransferKeeper,
+		appKeepers.BankKeeper, scopedTransferKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
 	appKeepers.TransferModule = transfer.NewAppModule(appKeepers.TransferKeeper)
@@ -205,12 +222,11 @@ func (appKeepers *AppKeepers) GetSubspace(moduleName string) paramstypes.Subspac
 func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey storetypes.StoreKey) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
 
-	//nolint: staticcheck // SA1019: moduletypes.ParamKeyTable is deprecated
-	paramsKeeper.Subspace(authtypes.ModuleName).WithKeyTable(authtypes.ParamKeyTable())
-	paramsKeeper.Subspace(banktypes.ModuleName).WithKeyTable(banktypes.ParamKeyTable()) //nolint: staticcheck // SA1019
-	paramsKeeper.Subspace(stakingtypes.ModuleName).WithKeyTable(stakingtypes.ParamKeyTable())
-	paramsKeeper.Subspace(distrtypes.ModuleName).WithKeyTable(distrtypes.ParamKeyTable()) //nolint: staticcheck // SA1019
-	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govv1.ParamKeyTable())        //nolint: staticcheck // SA1019
+	paramsKeeper.Subspace(authtypes.ModuleName)
+	paramsKeeper.Subspace(banktypes.ModuleName)
+	paramsKeeper.Subspace(stakingtypes.ModuleName)
+	paramsKeeper.Subspace(distrtypes.ModuleName)
+	paramsKeeper.Subspace(govtypes.ModuleName)
 
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibcexported.ModuleName)
