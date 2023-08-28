@@ -15,7 +15,7 @@ require (
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.0
 	github.com/cosmos/gogoproto v1.4.11
-	github.com/cosmos/ibc-go/modules/capability v1.0.0-rc3
+	github.com/cosmos/ibc-go/modules/capability v1.0.0-rc4
 	github.com/cosmos/ibc-go/v7 v7.0.0-20230821134303-b95aadbdce68
 	github.com/spf13/cast v1.5.1
 	github.com/spf13/cobra v1.7.0
@@ -31,7 +31,7 @@ require (
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
 	cosmossdk.io/errors v1.0.0 // indirect
-	cosmossdk.io/math v1.0.1 // indirect
+	cosmossdk.io/math v1.1.2 // indirect
 	cosmossdk.io/x/circuit v0.0.0-20230722073756-0fa85b7a424d // indirect
 	cosmossdk.io/x/evidence v0.0.0-20230722073756-0fa85b7a424d // indirect
 	cosmossdk.io/x/feegrant v0.0.0-20230722073756-0fa85b7a424d // indirect
