@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"os"
+
 	"cosmossdk.io/log"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -8,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/spf13/cast"
-	"os"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"

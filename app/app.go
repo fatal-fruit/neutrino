@@ -1,11 +1,16 @@
 package app
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/x/tx/signing"
-	"encoding/json"
-	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -19,9 +24,6 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/gogoproto/proto"
 	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
-	"io"
-	"os"
-	"path/filepath"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
@@ -92,9 +94,9 @@ func NewApp(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *NeutrinoApp {
-	//appCodec := encodingConfig.Marshaler
-	//legacyAmino := encodingConfig.Amino
-	//txConfig := encodingConfig.TxConfig
+	// appCodec := encodingConfig.Marshaler
+	// legacyAmino := encodingConfig.Amino
+	// txConfig := encodingConfig.TxConfig
 
 	interfaceRegistry, _ := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
 		ProtoFiles: proto.HybridResolver,
@@ -145,7 +147,6 @@ func NewApp(
 		app.BlockedModuleAccountAddrs(moduleAccountAddresses),
 		skipUpgradeHeights,
 		homePath,
-		Bech32Prefix,
 		DefaultDenom,
 		logger,
 	)

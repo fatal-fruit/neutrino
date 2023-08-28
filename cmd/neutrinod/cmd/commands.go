@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"io"
+	"os"
 
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
@@ -28,7 +29,6 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"os"
 )
 
 func initTendermintConfig() *tmcfg.Config {

@@ -83,7 +83,6 @@ func NewAppKeeper(
 	blockedAddress map[string]bool,
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
-	Bech32Prefix string,
 	defaultDenom string,
 	logger log.Logger,
 ) AppKeepers {
