@@ -6,7 +6,7 @@ require (
 	cosmossdk.io/api v0.7.0
 	cosmossdk.io/client/v2 v2.0.0-20230722073756-0fa85b7a424d
 	cosmossdk.io/core v0.10.0
-	cosmossdk.io/log v1.2.0
+	cosmossdk.io/log v1.2.1
 	cosmossdk.io/store v1.0.0-alpha.1.0.20230728080422-54ed7dab3982
 	cosmossdk.io/tools/confix v0.0.0-20230722073756-0fa85b7a424d
 	cosmossdk.io/x/tx v0.9.1
