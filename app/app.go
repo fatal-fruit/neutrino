@@ -23,7 +23,7 @@ import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/gogoproto/proto"
-	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
+	//ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
@@ -166,8 +166,8 @@ func NewApp(
 			govtypes.ModuleName: gov.NewAppModuleBasic(
 				[]govclient.ProposalHandler{
 					paramsclient.ProposalHandler,
-					ibcclientclient.UpdateClientProposalHandler,
-					ibcclientclient.UpgradeProposalHandler,
+					//ibcclientclient.UpdateClientProposalHandler,
+					//ibcclientclient.UpgradeProposalHandler,
 				},
 			),
 		})

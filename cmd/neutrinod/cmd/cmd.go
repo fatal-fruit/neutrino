@@ -93,7 +93,7 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 		},
 	}
 
-	initRootCmd(rootCmd, encodingConfig, tmpApp.BasicManager)
+	initRootCmd(rootCmd, encodingConfig, tmpApp.BasicManager, app.DefaultNodeHome)
 
 	return rootCmd, encodingConfig
 }

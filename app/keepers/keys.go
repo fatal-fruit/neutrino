@@ -10,9 +10,11 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	//capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	// IBC Imports
+	//capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	//ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	//ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -20,19 +22,20 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		authtypes.StoreKey,
 		banktypes.StoreKey,
 		stakingtypes.StoreKey,
-		ibcexported.StoreKey,
-		ibctransfertypes.StoreKey,
+		//ibcexported.StoreKey,
+		//ibctransfertypes.StoreKey,
 		distrtypes.StoreKey,
 		govtypes.StoreKey,
 		paramstypes.StoreKey,
-		capabilitytypes.StoreKey,
+		//capabilitytypes.StoreKey,
 		consensusparamtypes.StoreKey,
 		upgradetypes.StoreKey,
 		// TODO: Add store key
 	)
 
 	appKeepers.tkeys = storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
-	appKeepers.memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+	appKeepers.memKeys = storetypes.NewMemoryStoreKeys()
+	//appKeepers.memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 }
 
 func (appKeepers *AppKeepers) GetKVStoreKeys() map[string]*storetypes.KVStoreKey {

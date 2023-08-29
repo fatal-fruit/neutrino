@@ -27,16 +27,17 @@ import (
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibcclient "github.com/cosmos/ibc-go/v7/modules/core/02-client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
-	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
-	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	// IBC I,ports
+	//	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	//	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	//	"github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+	//	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
+	//	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	//	ibcclient "github.com/cosmos/ibc-go/v7/modules/core/02-client"
+	//	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	//	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
+	//	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	//	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 )
 
 const (
@@ -54,9 +55,9 @@ type AppKeepers struct {
 	tkeys   map[string]*storetypes.TransientStoreKey
 	memKeys map[string]*storetypes.MemoryStoreKey
 
-	AccountKeeper         authkeeper.AccountKeeper
-	BankKeeper            bankkeeper.Keeper
-	CapabilityKeeper      *capabilitykeeper.Keeper
+	AccountKeeper authkeeper.AccountKeeper
+	BankKeeper    bankkeeper.Keeper
+	//CapabilityKeeper      *capabilitykeeper.Keeper
 	StakingKeeper         *stakingkeeper.Keeper
 	DistrKeeper           distrkeeper.Keeper
 	GovKeeper             govkeeper.Keeper
@@ -64,15 +65,15 @@ type AppKeepers struct {
 	ParamsKeeper          paramskeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
-	IBCKeeper      *ibckeeper.Keeper
-	TransferKeeper ibctransferkeeper.Keeper
+	//IBCKeeper      *ibckeeper.Keeper
+	//TransferKeeper ibctransferkeeper.Keeper
+	//
+	//TransferModule transfer.AppModule
 
-	TransferModule transfer.AppModule
+	//ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
+	//ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
 	// TODO: Add keeper
-
-	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
-	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 }
 
 func NewAppKeeper(
@@ -100,15 +101,15 @@ func NewAppKeeper(
 	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, runtime.NewKVStoreService(appKeepers.keys[consensusparamtypes.StoreKey]), authtypes.NewModuleAddress(govtypes.ModuleName).String(), runtime.EventService{})
 	bApp.SetParamStore(&appKeepers.ConsensusParamsKeeper.ParamsStore)
 
-	appKeepers.CapabilityKeeper = capabilitykeeper.NewKeeper(
-		appCodec,
-		appKeepers.keys[capabilitytypes.StoreKey],
-		appKeepers.memKeys[capabilitytypes.MemStoreKey],
-	)
-
-	scopedIBCKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibcexported.ModuleName)
-	scopedTransferKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	appKeepers.CapabilityKeeper.Seal()
+	//appKeepers.CapabilityKeeper = capabilitykeeper.NewKeeper(
+	//	appCodec,
+	//	appKeepers.keys[capabilitytypes.StoreKey],
+	//	appKeepers.memKeys[capabilitytypes.MemStoreKey],
+	//)
+	//
+	//scopedIBCKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibcexported.ModuleName)
+	//scopedTransferKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
+	//appKeepers.CapabilityKeeper.Seal()
 
 	appKeepers.AccountKeeper = authkeeper.NewAccountKeeper(appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[authtypes.StoreKey]),
@@ -160,20 +161,20 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
-	appKeepers.IBCKeeper = ibckeeper.NewKeeper(
-		appCodec,
-		appKeepers.keys[ibcexported.StoreKey],
-		appKeepers.GetSubspace(ibcexported.ModuleName),
-		appKeepers.StakingKeeper,
-		appKeepers.UpgradeKeeper,
-		scopedIBCKeeper,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-	)
+	//appKeepers.IBCKeeper = ibckeeper.NewKeeper(
+	//	appCodec,
+	//	appKeepers.keys[ibcexported.StoreKey],
+	//	appKeepers.GetSubspace(ibcexported.ModuleName),
+	//	appKeepers.StakingKeeper,
+	//	appKeepers.UpgradeKeeper,
+	//	scopedIBCKeeper,
+	//	authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	//)
 
 	govRouter := govv1beta1.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
-		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(appKeepers.ParamsKeeper)).
-		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(appKeepers.IBCKeeper.ClientKeeper))
+		//AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(appKeepers.IBCKeeper.ClientKeeper)
+		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(appKeepers.ParamsKeeper))
 
 	govConfig := govtypes.DefaultConfig()
 	appKeepers.GovKeeper = *govkeeper.NewKeeper(
@@ -189,24 +190,24 @@ func NewAppKeeper(
 	)
 	appKeepers.GovKeeper.SetLegacyRouter(govRouter)
 
-	appKeepers.TransferKeeper = ibctransferkeeper.NewKeeper(
-		appCodec,
-		appKeepers.keys[ibctransfertypes.StoreKey],
-		appKeepers.GetSubspace(ibctransfertypes.ModuleName),
-		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.IBCKeeper.ChannelKeeper,
-		&appKeepers.IBCKeeper.PortKeeper,
-		appKeepers.AccountKeeper,
-		appKeepers.BankKeeper, scopedTransferKeeper,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-	)
-
-	appKeepers.TransferModule = transfer.NewAppModule(appKeepers.TransferKeeper)
-	transferStack := transfer.NewIBCModule(appKeepers.TransferKeeper)
-
-	ibcRouter := porttypes.NewRouter().
-		AddRoute(ibctransfertypes.ModuleName, transferStack)
-	appKeepers.IBCKeeper.SetRouter(ibcRouter)
+	//appKeepers.TransferKeeper = ibctransferkeeper.NewKeeper(
+	//	appCodec,
+	//	appKeepers.keys[ibctransfertypes.StoreKey],
+	//	appKeepers.GetSubspace(ibctransfertypes.ModuleName),
+	//	appKeepers.IBCKeeper.ChannelKeeper,
+	//	appKeepers.IBCKeeper.ChannelKeeper,
+	//	&appKeepers.IBCKeeper.PortKeeper,
+	//	appKeepers.AccountKeeper,
+	//	appKeepers.BankKeeper, scopedTransferKeeper,
+	//	authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	//)
+	//
+	//appKeepers.TransferModule = transfer.NewAppModule(appKeepers.TransferKeeper)
+	//transferStack := transfer.NewIBCModule(appKeepers.TransferKeeper)
+	//
+	//ibcRouter := porttypes.NewRouter().
+	//	AddRoute(ibctransfertypes.ModuleName, transferStack)
+	//appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
 	// TODO: Add Keeper constructor
 
@@ -227,8 +228,9 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(distrtypes.ModuleName)
 	paramsKeeper.Subspace(govtypes.ModuleName)
 
-	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
-	paramsKeeper.Subspace(ibcexported.ModuleName)
+	//paramsKeeper.Subspace(ibctransfertypes.ModuleName)
+	//paramsKeeper.Subspace(ibcexported.ModuleName)
+
 	// TODO: Add module params
 
 	return paramsKeeper

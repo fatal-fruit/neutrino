@@ -22,14 +22,15 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/ibc-go/modules/capability"
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v7/modules/core"
-	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
-	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
-	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
+	// IBC Imports
+	//"github.com/cosmos/ibc-go/modules/capability"
+	//capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	//"github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+	//ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	//ibc "github.com/cosmos/ibc-go/v7/modules/core"
+	//ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
+	//ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	//ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 )
 
 var (
@@ -37,21 +38,21 @@ var (
 		auth.AppModuleBasic{},
 		genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
 		bank.AppModuleBasic{},
-		capability.AppModuleBasic{},
+		//capability.AppModuleBasic{},
 		staking.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(
 			[]govclient.ProposalHandler{
 				paramsclient.ProposalHandler,
-				ibcclientclient.UpdateClientProposalHandler,
-				ibcclientclient.UpgradeProposalHandler,
+				//ibcclientclient.UpdateClientProposalHandler,
+				//ibcclientclient.UpgradeProposalHandler,
 			},
 		),
 		consensus.AppModuleBasic{},
-		ibc.AppModuleBasic{},
-		ibctm.AppModuleBasic{},
+		//ibc.AppModuleBasic{},
+		//ibctm.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
-		transfer.AppModuleBasic{},
+		//transfer.AppModuleBasic{},
 		// TODO: Add module AppModuleBasic
 	)
 
@@ -61,7 +62,7 @@ var (
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
-		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		//ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	}
 )
 
@@ -81,7 +82,7 @@ func appModules(
 		),
 		auth.NewAppModule(appCodec, app.AccountKeeper, nil, app.GetSubspace(authtypes.ModuleName)),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper, app.GetSubspace(banktypes.ModuleName)),
-		capability.NewAppModule(appCodec, *app.CapabilityKeeper, false),
+		//capability.NewAppModule(appCodec, *app.CapabilityKeeper, false),
 		gov.NewAppModule(appCodec, &app.GovKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(govtypes.ModuleName)),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(distrtypes.ModuleName)),
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
@@ -90,8 +91,8 @@ func appModules(
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
 
 		// IBC Modules
-		ibc.NewAppModule(app.IBCKeeper),
-		transfer.NewAppModule(app.TransferKeeper),
+		//ibc.NewAppModule(app.IBCKeeper),
+		//transfer.NewAppModule(app.TransferKeeper),
 
 		// TODO: Add new app module constructor
 	}
@@ -100,14 +101,14 @@ func appModules(
 func orderBeginBlockers() []string {
 	return []string{
 		upgradetypes.ModuleName,
-		capabilitytypes.ModuleName,
+		//capabilitytypes.ModuleName,
 		distrtypes.ModuleName,
 		stakingtypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		govtypes.ModuleName,
-		ibcexported.ModuleName,
-		ibctransfertypes.ModuleName,
+		//ibcexported.ModuleName,
+		//ibctransfertypes.ModuleName,
 		genutiltypes.ModuleName,
 		paramstypes.ModuleName,
 		consensusparamtypes.ModuleName,
@@ -119,9 +120,9 @@ func orderEndBlockers() []string {
 	return []string{
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
-		ibcexported.ModuleName,
-		ibctransfertypes.ModuleName,
-		capabilitytypes.ModuleName,
+		//ibcexported.ModuleName,
+		//ibctransfertypes.ModuleName,
+		//capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		distrtypes.ModuleName,
@@ -135,15 +136,15 @@ func orderEndBlockers() []string {
 
 func orderGenesisBlockers() []string {
 	return []string{
-		capabilitytypes.ModuleName,
+		//capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		distrtypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		genutiltypes.ModuleName,
-		ibctransfertypes.ModuleName,
-		ibcexported.ModuleName,
+		//ibctransfertypes.ModuleName,
+		//ibcexported.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		consensusparamtypes.ModuleName,

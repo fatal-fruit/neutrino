@@ -24,7 +24,7 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	"github.com/cosmos/ibc-go/v7/testing/simapp"
+	//"github.com/cosmos/ibc-go/v7/testing/simapp"
 	"github.com/fatal-fruit/neutrino/app"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
@@ -55,7 +55,7 @@ func initAppConfig() (string, interface{}) {
 	return defaultAppTemplate, customAppConfig
 }
 
-func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig, basicManager module.BasicManager) {
+func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig, basicManager module.BasicManager, defaultNodeHome string) {
 	cfg := sdk.GetConfig()
 
 	cfg.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
@@ -66,10 +66,10 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig, basi
 	ac := appCreator{encodingConfig}
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, simapp.DefaultNodeHome),
+		genutilcli.InitCmd(basicManager, defaultNodeHome),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
-		pruning.Cmd(ac.newApp, simapp.DefaultNodeHome),
+		pruning.Cmd(ac.newApp, defaultNodeHome),
 		snapshot.Cmd(ac.newApp),
 	)
 
@@ -77,7 +77,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig, basi
 
 	rootCmd.AddCommand(
 		server.StatusCommand(),
-		genesisCommand(encodingConfig, basicManager),
+		genesisCommand(encodingConfig, app.DefaultNodeHome, basicManager),
 		queryCommand(),
 		txCommand(),
 		keys.Commands(),
@@ -88,8 +88,8 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 }
 
-func genesisCommand(encodingConfig app.EncodingConfig, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
-	cmd := genutilcli.Commands(encodingConfig.TxConfig, basicManager, simapp.DefaultNodeHome)
+func genesisCommand(encodingConfig app.EncodingConfig, defaultNodeHome string, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
+	cmd := genutilcli.Commands(encodingConfig.TxConfig, basicManager, defaultNodeHome)
 
 	for _, subCmd := range cmds {
 		cmd.AddCommand(subCmd)
