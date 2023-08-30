@@ -141,13 +141,13 @@ start-localnet: build
 	./build/neutrinod init liveness --chain-id neutrino-1 --default-denom uneutrino --home ~/.neutrinod-liveness
 	./build/neutrinod config chain-id neutrino-1 --home ~/.neutrinod-liveness
 	./build/neutrinod config keyring-backend test --home ~/.neutrinod-liveness
-	./build/neutrinod keys add val --home ~/.neutrinod-liveness
-	./build/neutrinod keys add alice --home ~/.neutrinod-liveness
-	./build/neutrinod keys add bob --home ~/.neutrinod-liveness
+	./build/neutrinod keys add val --home ~/.neutrinod-liveness --keyring-backend test
+	./build/neutrinod keys add alice --home ~/.neutrinod-liveness  --keyring-backend test
+	./build/neutrinod keys add bob --home ~/.neutrinod-liveness --keyring-backend test
 	./build/neutrinod genesis add-genesis-account val 10000000000000000000000000uneutrino --home ~/.neutrinod-liveness --keyring-backend test
 	./build/neutrinod genesis add-genesis-account alice 1000000000000000000uneutrino --home ~/.neutrinod-liveness --keyring-backend test
 	./build/neutrinod genesis add-genesis-account bob 1000000000000000000uneutrino --home ~/.neutrinod-liveness --keyring-backend test
-	./build/neutrinod genesis gentx val 1000000000uneutrino --chain-id neutrino-1 --home ~/.neutrinod-liveness
+	./build/neutrinod genesis gentx val 1000000000uneutrino --chain-id neutrino-1 --home ~/.neutrinod-liveness --keyring-backend test
 	./build/neutrinod genesis collect-gentxs --home ~/.neutrinod-liveness
 	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.025uneutrino"/' ~/.neutrinod-liveness/config/app.toml
 	./build/neutrinod start --home ~/.neutrinod-liveness

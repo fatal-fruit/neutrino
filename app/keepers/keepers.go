@@ -5,6 +5,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	"github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -27,7 +28,7 @@ import (
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	// IBC I,ports
+	// IBC Imports
 	//	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	//	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	//	"github.com/cosmos/ibc-go/v7/modules/apps/transfer"
@@ -38,16 +39,6 @@ import (
 	//	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	//	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	//	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-)
-
-const (
-	Bech32Prefix         = "neutrino"
-	Bech32PrefixAccAddr  = Bech32Prefix
-	Bech32PrefixAccPub   = Bech32Prefix + "pub"
-	Bech32PrefixValAddr  = Bech32Prefix + "valoper"
-	Bech32PrefixValPub   = Bech32Prefix + "valoperpub"
-	Bech32PrefixConsAddr = Bech32Prefix + "valcons"
-	Bech32PrefixConsPub  = Bech32Prefix + "valconspub"
 )
 
 type AppKeepers struct {
@@ -84,7 +75,7 @@ func NewAppKeeper(
 	blockedAddress map[string]bool,
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
-	defaultDenom string,
+	cfg *types.Config,
 	logger log.Logger,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
@@ -98,8 +89,13 @@ func NewAppKeeper(
 		appKeepers.tkeys[paramstypes.TStoreKey],
 	)
 
-	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, runtime.NewKVStoreService(appKeepers.keys[consensusparamtypes.StoreKey]), authtypes.NewModuleAddress(govtypes.ModuleName).String(), runtime.EventService{})
-	bApp.SetParamStore(&appKeepers.ConsensusParamsKeeper.ParamsStore)
+	// set the BaseApp's parameter store
+	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[consensusparamtypes.StoreKey]),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		runtime.EventService{})
+	bApp.SetParamStore(appKeepers.ConsensusParamsKeeper.ParamsStore)
 
 	//appKeepers.CapabilityKeeper = capabilitykeeper.NewKeeper(
 	//	appCodec,
@@ -114,8 +110,8 @@ func NewAppKeeper(
 	appKeepers.AccountKeeper = authkeeper.NewAccountKeeper(appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[authtypes.StoreKey]),
 		authtypes.ProtoBaseAccount, maccPerms,
-		authcodec.NewBech32Codec(Bech32Prefix),
-		Bech32Prefix,
+		authcodec.NewBech32Codec(cfg.GetBech32AccountAddrPrefix()),
+		cfg.GetBech32AccountAddrPrefix(),
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -134,8 +130,8 @@ func NewAppKeeper(
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		authcodec.NewBech32Codec(Bech32PrefixValAddr),
-		authcodec.NewBech32Codec(Bech32PrefixConsAddr),
+		authcodec.NewBech32Codec(cfg.GetBech32ValidatorAddrPrefix()),
+		authcodec.NewBech32Codec(cfg.GetBech32ConsensusAddrPrefix()),
 	)
 
 	appKeepers.DistrKeeper = distrkeeper.NewKeeper(

@@ -1,12 +1,14 @@
 package app
 
 import (
+	"cosmossdk.io/x/tx/signing"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
+	"github.com/cosmos/gogoproto/proto"
 )
 
 // EncodingConfig specifies the concrete encoding types to use for a given app.
@@ -20,15 +22,31 @@ type EncodingConfig struct {
 
 // MakeEncodingConfig creates an EncodingConfig for an amino based test configuration.
 func MakeEncodingConfig() EncodingConfig {
-	amino := codec.NewLegacyAmino()
-	interfaceRegistry := codectypes.NewInterfaceRegistry()
-	cdc := codec.NewProtoCodec(interfaceRegistry)
-	txCfg := tx.NewTxConfig(cdc, tx.DefaultSignModes)
+	interfaceRegistry, _ := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
+		ProtoFiles: proto.HybridResolver,
+		SigningOptions: signing.Options{
+			AddressCodec: address.Bech32Codec{
+				Bech32Prefix: "neutrino",
+			},
+			ValidatorAddressCodec: address.Bech32Codec{
+				Bech32Prefix: "neutrino",
+			},
+		},
+	})
+
+	appCodec := codec.NewProtoCodec(interfaceRegistry)
+	legacyAmino := codec.NewLegacyAmino()
+	txConfig := tx.NewTxConfig(appCodec, tx.DefaultSignModes)
+
+	//amino := codec.NewLegacyAmino()
+	//interfaceRegistry := codectypes.NewInterfaceRegistry()
+	//cdc := codec.NewProtoCodec(interfaceRegistry)
+	//txCfg := tx.NewTxConfig(cdc, tx.DefaultSignModes)
 	return EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
-		Marshaler:         cdc,
-		TxConfig:          txCfg,
-		Amino:             amino,
+		Marshaler:         appCodec,
+		TxConfig:          txConfig,
+		Amino:             legacyAmino,
 	}
 }
 

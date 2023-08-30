@@ -9,12 +9,8 @@ import (
 
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/x/tx/signing"
-
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
-	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/runtime"
-	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -45,7 +41,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -81,6 +76,14 @@ func init() {
 	}
 
 	DefaultNodeHome = filepath.Join(userHomeDir, ".neutrinod")
+
+	cfg := sdk.GetConfig()
+
+	cfg.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
+	cfg.SetBech32PrefixForValidator(Bech32PrefixAccAddr, Bech32PrefixValPub)
+	cfg.SetBech32PrefixForConsensusNode(Bech32PrefixConsAddr, Bech32PrefixConsPub)
+
+	cfg.Seal()
 }
 
 func NewApp(
@@ -94,28 +97,12 @@ func NewApp(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *NeutrinoApp {
-	// appCodec := encodingConfig.Marshaler
-	// legacyAmino := encodingConfig.Amino
-	// txConfig := encodingConfig.TxConfig
+	appCodec := encodingConfig.Marshaler
+	legacyAmino := encodingConfig.Amino
+	txConfig := encodingConfig.TxConfig
+	interfaceRegistry := encodingConfig.InterfaceRegistry
 
-	interfaceRegistry, _ := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
-		ProtoFiles: proto.HybridResolver,
-		SigningOptions: signing.Options{
-			AddressCodec: address.Bech32Codec{
-				Bech32Prefix: Bech32Prefix,
-			},
-			ValidatorAddressCodec: address.Bech32Codec{
-				Bech32Prefix: Bech32Prefix,
-			},
-		},
-	})
-
-	appCodec := codec.NewProtoCodec(interfaceRegistry)
-	legacyAmino := codec.NewLegacyAmino()
-	txConfig := tx.NewTxConfig(appCodec, tx.DefaultSignModes)
-
-	std.RegisterLegacyAminoCodec(legacyAmino)
-	std.RegisterInterfaces(interfaceRegistry)
+	cfg := sdk.GetConfig()
 
 	bApp := baseapp.NewBaseApp(
 		AppName,
@@ -147,7 +134,7 @@ func NewApp(
 		app.BlockedModuleAccountAddrs(moduleAccountAddresses),
 		skipUpgradeHeights,
 		homePath,
-		DefaultDenom,
+		cfg,
 		logger,
 	)
 
@@ -171,8 +158,8 @@ func NewApp(
 				},
 			),
 		})
-	app.BasicManager.RegisterLegacyAminoCodec(legacyAmino)
-	app.BasicManager.RegisterInterfaces(interfaceRegistry)
+	//app.BasicManager.RegisterLegacyAminoCodec(legacyAmino)
+	//app.BasicManager.RegisterInterfaces(interfaceRegistry)
 
 	app.mm.SetOrderBeginBlockers(orderBeginBlockers()...)
 	app.mm.SetOrderEndBlockers(orderEndBlockers()...)
@@ -202,7 +189,6 @@ func NewApp(
 	// initialize stores
 	app.MountKVStores(app.GetKVStoreKeys())
 	app.MountTransientStores(app.GetTransientStoreKey())
-	app.MountMemoryStores(app.GetMemoryStoreKey())
 
 	// <Upgrade handler setup here>
 
@@ -210,6 +196,8 @@ func NewApp(
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
+
+	//app.setAnteHandler(txConfig)
 
 	// At startup, after all modules have been registered, check that all prot
 	// annotations are correct.
@@ -295,9 +283,9 @@ func (app *NeutrinoApp) AutoCliOpts() autocli.AppOptions {
 	return autocli.AppOptions{
 		Modules:               modules,
 		ModuleOptions:         runtimeservices.ExtractAutoCLIOptions(app.mm.Modules),
-		AddressCodec:          authcodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
-		ValidatorAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
-		ConsensusAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
+		AddressCodec:          authcodec.NewBech32Codec(Bech32PrefixAccAddr),
+		ValidatorAddressCodec: authcodec.NewBech32Codec(Bech32PrefixAccAddr),
+		ConsensusAddressCodec: authcodec.NewBech32Codec(Bech32PrefixConsAddr),
 	}
 }
 

@@ -34,7 +34,6 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 	)
 
 	appKeepers.tkeys = storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
-	appKeepers.memKeys = storetypes.NewMemoryStoreKeys()
 	//appKeepers.memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 }
 

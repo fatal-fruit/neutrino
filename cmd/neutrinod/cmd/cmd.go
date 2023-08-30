@@ -25,6 +25,7 @@ import (
 )
 
 func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
+
 	encodingConfig := app.RegisterEncodingConfig()
 
 	tmpApp := app.NewApp(
@@ -94,6 +95,15 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 	}
 
 	initRootCmd(rootCmd, encodingConfig, tmpApp.BasicManager, app.DefaultNodeHome)
+
+	// add keyring to autocli opts
+	autoCliOpts := tmpApp.AutoCliOpts()
+	initClientCtx, _ = config.ReadFromClientConfig(initClientCtx)
+	//autoCliOpts.Keyring = initClientCtx.Keyring
+
+	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
+		panic(err)
+	}
 
 	return rootCmd, encodingConfig
 }
