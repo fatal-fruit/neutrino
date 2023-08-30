@@ -41,7 +41,7 @@ func (appKeepers *AppKeepers) GetKVStoreKeys() map[string]*storetypes.KVStoreKey
 	return appKeepers.keys
 }
 
-func (appKeepers *AppKeepers) GetTransientStoreKey() map[string]*storetypes.TransientStoreKey {
+func (appKeepers *AppKeepers) GetTransientStoreKeys() map[string]*storetypes.TransientStoreKey {
 	return appKeepers.tkeys
 }
 

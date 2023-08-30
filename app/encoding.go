@@ -6,7 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/cosmos/gogoproto/proto"
 )
@@ -53,10 +52,10 @@ func MakeEncodingConfig() EncodingConfig {
 func RegisterEncodingConfig() EncodingConfig {
 	encConfig := MakeEncodingConfig()
 
-	std.RegisterLegacyAminoCodec(encConfig.Amino)
-	std.RegisterInterfaces(encConfig.InterfaceRegistry)
-	ModuleBasics.RegisterLegacyAminoCodec(encConfig.Amino)
-	ModuleBasics.RegisterInterfaces(encConfig.InterfaceRegistry)
+	//std.RegisterLegacyAminoCodec(encConfig.Amino)
+	//std.RegisterInterfaces(encConfig.InterfaceRegistry)
+	//ModuleBasics.RegisterLegacyAminoCodec(encConfig.Amino)
+	//ModuleBasics.RegisterInterfaces(encConfig.InterfaceRegistry)
 
 	return encConfig
 }

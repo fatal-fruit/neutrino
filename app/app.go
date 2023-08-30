@@ -3,6 +3,7 @@ package app
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/std"
 	"io"
 	"os"
 	"path/filepath"
@@ -101,7 +102,8 @@ func NewApp(
 	legacyAmino := encodingConfig.Amino
 	txConfig := encodingConfig.TxConfig
 	interfaceRegistry := encodingConfig.InterfaceRegistry
-
+	std.RegisterLegacyAminoCodec(legacyAmino)
+	std.RegisterInterfaces(interfaceRegistry)
 	cfg := sdk.GetConfig()
 
 	bApp := baseapp.NewBaseApp(
@@ -158,8 +160,8 @@ func NewApp(
 				},
 			),
 		})
-	//app.BasicManager.RegisterLegacyAminoCodec(legacyAmino)
-	//app.BasicManager.RegisterInterfaces(interfaceRegistry)
+	app.BasicManager.RegisterLegacyAminoCodec(legacyAmino)
+	app.BasicManager.RegisterInterfaces(interfaceRegistry)
 
 	app.mm.SetOrderBeginBlockers(orderBeginBlockers()...)
 	app.mm.SetOrderEndBlockers(orderEndBlockers()...)
@@ -188,10 +190,9 @@ func NewApp(
 
 	// initialize stores
 	app.MountKVStores(app.GetKVStoreKeys())
-	app.MountTransientStores(app.GetTransientStoreKey())
+	app.MountTransientStores(app.GetTransientStoreKeys())
 
 	// <Upgrade handler setup here>
-
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
