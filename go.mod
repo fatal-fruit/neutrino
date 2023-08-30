@@ -4,19 +4,18 @@ go 1.21
 
 require (
 	cosmossdk.io/api v0.7.0
-	cosmossdk.io/client/v2 v2.0.0-20230722073756-0fa85b7a424d
+	cosmossdk.io/client/v2 v2.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/core v0.10.0
 	cosmossdk.io/log v1.2.0
 	cosmossdk.io/store v1.0.0-alpha.1.0.20230728080422-54ed7dab3982
-	cosmossdk.io/tools/confix v0.0.0-20230722073756-0fa85b7a424d
+	cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/tx v0.9.1
 	cosmossdk.io/x/upgrade v0.0.0-20230818204838-b7d9d4c8a9b6
 	github.com/cometbft/cometbft v0.38.0-rc3
 	github.com/cosmos/cosmos-db v1.0.0
-	github.com/cosmos/cosmos-sdk v0.50.0-rc.0
+	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230819070346-e8164be94954
 	github.com/cosmos/gogoproto v1.4.11
-	//github.com/cosmos/ibc-go/modules/capability v1.0.0-rc3
-	//github.com/cosmos/ibc-go/v7 v7.0.0-20230821134303-b95aadbdce68
+	github.com/cosmos/ibc-go/modules/capability v0.0.0-20230824092829-0be805050816
 	github.com/spf13/cast v1.5.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0

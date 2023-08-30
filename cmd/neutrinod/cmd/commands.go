@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"io"
 	"os"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
