@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"io"
 	"os"
 
@@ -55,18 +56,18 @@ func initAppConfig() (string, interface{}) {
 }
 
 func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig, basicManager module.BasicManager, defaultNodeHome string) {
-
-	ac := appCreator{encodingConfig}
+	cfg := sdk.GetConfig()
+	cfg.Seal()
 
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(basicManager, defaultNodeHome),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
-		pruning.Cmd(ac.newApp, defaultNodeHome),
-		snapshot.Cmd(ac.newApp),
+		pruning.Cmd(newApp, defaultNodeHome),
+		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommands(rootCmd, app.DefaultNodeHome, ac.newApp, ac.appExport, addModuleInitFlags)
+	server.AddCommands(rootCmd, app.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
 
 	rootCmd.AddCommand(
 		server.StatusCommand(),
@@ -137,11 +138,7 @@ func txCommand() *cobra.Command {
 	return cmd
 }
 
-type appCreator struct {
-	encCfg app.EncodingConfig
-}
-
-func (a appCreator) newApp(
+func newApp(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
@@ -161,13 +158,12 @@ func (a appCreator) newApp(
 		true,
 		skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
-		a.encCfg,
 		appOpts,
 		baseappOptions...,
 	)
 }
 
-func (a appCreator) appExport(
+func appExport(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
@@ -203,7 +199,6 @@ func (a appCreator) appExport(
 		loadLatest,
 		map[int64]bool{},
 		homePath,
-		a.encCfg,
 		appOpts,
 	)
 

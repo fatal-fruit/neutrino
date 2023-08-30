@@ -25,9 +25,6 @@ import (
 )
 
 func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
-
-	encodingConfig := app.RegisterEncodingConfig()
-
 	tmpApp := app.NewApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
@@ -35,9 +32,15 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 		true,
 		map[int64]bool{},
 		cast.ToString(simtestutil.NewAppOptionsWithFlagHome(flags.FlagHome)),
-		encodingConfig,
 		simtestutil.NewAppOptionsWithFlagHome(tempDir()),
 	)
+
+	encodingConfig := app.EncodingConfig{
+		InterfaceRegistry: tmpApp.InterfaceRegistry(),
+		Marshaler:         tmpApp.AppCodec(),
+		TxConfig:          tmpApp.GetTxConfig(),
+		Amino:             tmpApp.LegacyAmino(),
+	}
 
 	initClientCtx := client.Context{}.
 		WithCodec(encodingConfig.Marshaler).
