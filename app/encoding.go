@@ -37,10 +37,10 @@ func MakeEncodingConfig() EncodingConfig {
 	legacyAmino := codec.NewLegacyAmino()
 	txConfig := tx.NewTxConfig(appCodec, tx.DefaultSignModes)
 
-	//amino := codec.NewLegacyAmino()
-	//interfaceRegistry := codectypes.NewInterfaceRegistry()
-	//cdc := codec.NewProtoCodec(interfaceRegistry)
-	//txCfg := tx.NewTxConfig(cdc, tx.DefaultSignModes)
+	// amino := codec.NewLegacyAmino()
+	// interfaceRegistry := codectypes.NewInterfaceRegistry()
+	// cdc := codec.NewProtoCodec(interfaceRegistry)
+	// txCfg := tx.NewTxConfig(cdc, tx.DefaultSignModes)
 	return EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
 		Marshaler:         appCodec,
@@ -52,10 +52,10 @@ func MakeEncodingConfig() EncodingConfig {
 func RegisterEncodingConfig() EncodingConfig {
 	encConfig := MakeEncodingConfig()
 
-	//std.RegisterLegacyAminoCodec(encConfig.Amino)
-	//std.RegisterInterfaces(encConfig.InterfaceRegistry)
-	//ModuleBasics.RegisterLegacyAminoCodec(encConfig.Amino)
-	//ModuleBasics.RegisterInterfaces(encConfig.InterfaceRegistry)
+	// std.RegisterLegacyAminoCodec(encConfig.Amino)
+	// std.RegisterInterfaces(encConfig.InterfaceRegistry)
+	// ModuleBasics.RegisterLegacyAminoCodec(encConfig.Amino)
+	// ModuleBasics.RegisterInterfaces(encConfig.InterfaceRegistry)
 
 	return encConfig
 }

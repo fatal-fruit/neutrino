@@ -1,12 +1,17 @@
 package app
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+
 	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/tx/signing"
 	"cosmossdk.io/x/upgrade"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
-	"encoding/json"
-	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -22,9 +27,6 @@ import (
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"io"
-	"os"
-	"path/filepath"
 
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
@@ -38,7 +40,7 @@ import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/gogoproto/proto"
-	//ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
+	// ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
@@ -137,7 +139,6 @@ func NewApp(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *NeutrinoApp {
-
 	interfaceRegistry, _ := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
 		ProtoFiles: proto.HybridResolver,
 		SigningOptions: signing.Options{
@@ -273,7 +274,7 @@ func NewApp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-			// register the governance hooks
+		// register the governance hooks
 		),
 	)
 
@@ -365,7 +366,7 @@ func NewApp(
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
 
-	//app.setAnteHandler(txConfig)
+	// app.setAnteHandler(txConfig)
 
 	// At startup, after all modules have been registered, check that all prot
 	// annotations are correct.
