@@ -72,6 +72,10 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
+	auctionkeeper "github.com/fatal-fruit/auction/keeper"
+	auctionmodule "github.com/fatal-fruit/auction/module"
+	auctiontypes "github.com/fatal-fruit/auction/types"
 )
 
 var (
@@ -83,6 +87,7 @@ var (
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
+		auctiontypes.ModuleName:        nil,
 	}
 )
 
@@ -111,6 +116,8 @@ type NeutrinoApp struct {
 	UpgradeKeeper         *upgradekeeper.Keeper
 	ParamsKeeper          paramskeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
+
+	AuctionKeeepr auctionkeeper.Keeper
 
 	mm           *module.Manager
 	BasicManager module.BasicManager
@@ -172,6 +179,7 @@ func NewApp(
 		paramstypes.StoreKey,
 		upgradetypes.StoreKey,
 		consensusparamtypes.StoreKey,
+		auctiontypes.StoreKey,
 	)
 
 	// register streaming services
@@ -278,6 +286,15 @@ func NewApp(
 		),
 	)
 
+	app.AuctionKeeepr = auctionkeeper.NewKeeper(
+		appCodec,
+		authcodec.NewBech32Codec(sdk.Bech32MainPrefix),
+		runtime.NewKVStoreService(keys[auctiontypes.StoreKey]),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		app.BankKeeper,
+		DefaultDenom,
+	)
+
 	app.mm = module.NewManager(
 		genutil.NewAppModule(
 			app.AccountKeeper, app.StakingKeeper, app,
@@ -291,6 +308,7 @@ func NewApp(
 		upgrade.NewAppModule(app.UpgradeKeeper, app.AccountKeeper.AddressCodec()),
 		params.NewAppModule(app.ParamsKeeper),
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
+		auctionmodule.NewAppModule(appCodec, app.AuctionKeeepr),
 	)
 
 	// Basic manager
@@ -331,6 +349,7 @@ func NewApp(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		consensusparamtypes.ModuleName,
+		auctiontypes.ModuleName,
 	}
 
 	app.mm.SetOrderInitGenesis(genesisModuleOrder...)
