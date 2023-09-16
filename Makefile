@@ -150,7 +150,7 @@ start-localnet: build
 	./build/neutrinod genesis gentx val 1000000000uneutrino --chain-id neutrino-1 --home ~/.neutrinod-liveness --keyring-backend test
 	./build/neutrinod genesis collect-gentxs --home ~/.neutrinod-liveness
 	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0.025uneutrino"/' ~/.neutrinod-liveness/config/app.toml
-	./build/neutrinod start --home ~/.neutrinod-liveness
+	./build/neutrinod start --x-crisis-skip-assert-invariants --home ~/.neutrinod-liveness
 
 ###############################################################################
 ###                           Tests & Simulation                            ###
