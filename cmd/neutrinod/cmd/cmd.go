@@ -1,17 +1,18 @@
 package cmd
 
 import (
+	"cosmossdk.io/client/v2/autocli"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"os"
 
 	"cosmossdk.io/log"
 	dbm "github.com/cosmos/cosmos-db"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/spf13/cast"
-
-	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 
 	"github.com/fatal-fruit/neutrino/app"
@@ -30,8 +31,6 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 		dbm.NewMemDB(),
 		nil,
 		true,
-		map[int64]bool{},
-		cast.ToString(simtestutil.NewAppOptionsWithFlagHome(flags.FlagHome)),
 		simtestutil.NewAppOptionsWithFlagHome(tempDir()),
 	)
 
@@ -97,16 +96,36 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 		},
 	}
 
-	initRootCmd(rootCmd, encodingConfig, tmpApp.BasicManager, app.DefaultNodeHome)
+	initRootCmd(rootCmd, encodingConfig, tmpApp.BasicManager)
 
-	// add keyring to autocli opts
-	autoCliOpts := tmpApp.AutoCliOpts()
-	initClientCtx, _ = config.ReadFromClientConfig(initClientCtx)
-	// autoCliOpts.Keyring = initClientCtx.Keyring
+	autoCliOpts, err := enrichAutoCliOpts(tmpApp.AutoCliOpts(), initClientCtx)
+	if err != nil {
+		panic(err)
+	}
 
 	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
 		panic(err)
 	}
 
 	return rootCmd, encodingConfig
+}
+
+func enrichAutoCliOpts(autoCliOpts autocli.AppOptions, clientCtx client.Context) (autocli.AppOptions, error) {
+	autoCliOpts.AddressCodec = addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix())
+	autoCliOpts.ValidatorAddressCodec = addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix())
+	autoCliOpts.ConsensusAddressCodec = addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix())
+
+	var err error
+	clientCtx, err = config.ReadFromClientConfig(clientCtx)
+	if err != nil {
+		return autocli.AppOptions{}, err
+	}
+
+	autoCliOpts.ClientCtx = clientCtx
+	autoCliOpts.Keyring, err = keyring.NewAutoCLIKeyring(clientCtx.Keyring)
+	if err != nil {
+		return autocli.AppOptions{}, err
+	}
+
+	return autoCliOpts, nil
 }
